@@ -6,3 +6,14 @@ ene300.egg-info/SOURCES.txt
 ene300.egg-info/dependency_links.txt
 ene300.egg-info/not-zip-safe
 ene300.egg-info/top_level.txt
+ene300/functions/__init__.py
+ene300/functions/_easom.py
+ene300/functions/_eggholder.py
+ene300/functions/_griewank.py
+ene300/functions/_shubert.py
+ene300/functions/_sixhump.py
+ene300/optimization/__init__.py
+ene300/optimization/_pso.py
+ene300/plot/__init__.py
+ene300/plot/_animation.py
+ene300/plot/_surface.py
