@@ -1,1 +1,2 @@
-from ._pso import pso
+from ._pso import PSO
+from ._fpa import FPA
