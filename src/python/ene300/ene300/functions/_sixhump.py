@@ -1,5 +1,7 @@
 import numpy as np
+from ._function_counter import function_counter
 
+@function_counter
 def sixhump(x):
     # Referencia
     #Molga, M., & Smutnicki, C. Test functions for optimization needs (2005). Retrieved June

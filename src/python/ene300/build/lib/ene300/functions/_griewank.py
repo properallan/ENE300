@@ -1,5 +1,7 @@
 import numpy as np
+from ._function_counter import function_counter
 
+@function_counter
 def griewank(x):
     # References
     """

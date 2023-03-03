@@ -1,5 +1,7 @@
 import numpy as np
+from ._function_counter import function_counter
 
+@function_counter
 def shubert(x):
     # Reference
     # http://wwwoptima.amp.i.kyoto-u.ac.jp/member/student/hedar/Hedar_files/TestGO.htm

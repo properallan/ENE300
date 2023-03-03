@@ -1,5 +1,6 @@
 import numpy as np
 import time
+from ene300.functions import function_counter
 
 # Particle Swarm Optimization (PSO)
 class PSO:
@@ -8,6 +9,12 @@ class PSO:
 
     def __call__(self, objective_function, position_boundary, velocity_boundary, weight_function, C_function, population, itmax):
         ini_time = time.process_time()
+
+        objective_function_ = objective_function
+        @function_counter
+        def objective_function(x):
+            return objective_function_(x)
+
         self.R1s = []  
         self.R2s = []  
         self.C1s = []  
@@ -64,6 +71,7 @@ class PSO:
         #history['acceleration_coefficient'] = acceleration_coefficient
         history['population'] = population
         history['itmax'] = itmax
+        history['function_evaluations'] = 0
 
 
         self.itmax = itmax
@@ -125,7 +133,8 @@ class PSO:
             
         cpu_time = time.process_time() - ini_time
         history['cpu_time'] = cpu_time
-
+        history['function_evaluations'] = objective_function.calls
+        
         return global_best, best_fit, history
         
     def error_metric(self, x_ii, x_i):

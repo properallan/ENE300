@@ -9,11 +9,13 @@ ene300.egg-info/top_level.txt
 ene300/functions/__init__.py
 ene300/functions/_easom.py
 ene300/functions/_eggholder.py
+ene300/functions/_function_counter.py
 ene300/functions/_griewank.py
 ene300/functions/_shubert.py
 ene300/functions/_sixhump.py
 ene300/optimization/__init__.py
 ene300/optimization/_fpa.py
+ene300/optimization/_gwo.py
 ene300/optimization/_pso.py
 ene300/optimization/_sos.py
 ene300/plot/__init__.py

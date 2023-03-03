@@ -1,15 +1,20 @@
 import numpy as np
 from scipy.special import gamma
 import time
+from ene300.functions import function_counter
 
 def Levy(d):
     beta = 1.5
     sigma_u = (gamma(1+beta)*np.sin(np.pi*beta/2)/gamma((1+beta)/2)/beta/(2**((beta-1)/2)))**(1/beta)
     sigma_v = 1
+    #tmpdiv = (gamma((1+beta)/2)*beta*2**((beta-1)/2))**(1/beta)
+    #sigma = (gamma(1+beta)*np.sin(np.pi*beta/2))/tmpdiv
     u = np.random.normal(0, sigma_u**2, d)
+    #u = np.random.rand(d)*sigma
     v = np.random.normal(0, sigma_v**2, d)
-    s = u/(abs(v)**(1/beta))
-    L = 1*s
+    #v = np.random.rand(d)
+    step = u/(abs(v)**(1/beta))
+    L = 1*step
     return L    
 
 # Flower Pollination Algorithm (FPA)
@@ -21,8 +26,12 @@ class FPA:
         """
         p: change probalility to change from global to local pollination
         """
-        
-        init_time = time.process_time()
+        ini_time = time.process_time()
+
+        objective_function_ = objective_function
+        @function_counter
+        def objective_function(x):
+            return objective_function_(x)
 
         position_boundary = np.array(position_boundary)
         dimensions = len(position_boundary)
@@ -91,5 +100,9 @@ class FPA:
             history['position'].append(np.copy(position))
             history['global_best'].append(np.copy(global_best))
             history['best_fit'].append(float(best_fit))
+
+        cpu_time = time.process_time() - ini_time
+        history['cpu_time'] = cpu_time
+        history['function_evaluations'] = objective_function.calls
         
         return global_best, best_fit, history
