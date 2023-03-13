@@ -7,13 +7,16 @@ class PSO:
     def __init__(self):
         pass
 
-    def __call__(self, objective_function, position_boundary, velocity_boundary, weight_function, C_function, population, itmax):
+    def __call__(self, objective_function, position_boundary, velocity_boundary, weight_function, C_function, population, itmax, max_fa, direction='minimize'):
         ini_time = time.process_time()
 
         objective_function_ = objective_function
         @function_counter
         def objective_function(x):
-            return objective_function_(x)
+            if direction == 'minimize':
+                return objective_function_(x)
+            elif direction == 'maximize':
+                return - objective_function_(x)
 
         self.R1s = []  
         self.R2s = []  
@@ -65,17 +68,19 @@ class PSO:
         history['best_fit'] = []
         history['cpu_time'] = []
         history['position_boundary'] = position_boundary
-        history['velocity_boundary'] = position_boundary
-        history['objective_function'] = objective_function
-        #history['weight'] = weight
-        #history['acceleration_coefficient'] = acceleration_coefficient
+        history['objective_function'] = objective_function_
         history['population'] = population
         history['itmax'] = itmax
         history['function_evaluations'] = 0
+        history['max_fa'] = max_fa
+        history['directon'] = direction
 
 
         self.itmax = itmax
-        for it in range(1,self.itmax+1):
+        it = 0
+        break_flag = False
+        while it < itmax and break_flag is False:
+            it += 1
             self.it = it
             #weight = max_weight - (max_weight-min_weight) * it/itmax
             #weight = self._weight_function()
@@ -124,6 +129,10 @@ class PSO:
             history['position_best'].append(np.copy(position_best))
             history['global_best'].append(np.copy(global_best))
             history['best_fit'].append(float(best_fit))
+
+            if objective_function.calls >= max_fa:
+                break_flag = True
+                break
 
         self.weight = np.array(self.weights)
         self.R1= np.array(self.R1s)

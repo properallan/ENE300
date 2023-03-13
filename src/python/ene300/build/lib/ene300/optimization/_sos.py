@@ -7,13 +7,16 @@ class SOS:
     def __init__(self): 
         pass
 
-    def __call__(self, objective_function, position_boundary, population, itmax):
+    def __call__(self, objective_function, position_boundary, population, itmax, max_fa, direction='minimize'):
         ini_time = time.process_time()
 
         objective_function_ = objective_function
         @function_counter
         def objective_function(x):
-            return objective_function_(x)
+            if direction == 'minimize':
+                return objective_function_(x)
+            elif direction == 'maximize':
+                return - objective_function_(x)
 
         position_boundary = np.array(position_boundary)
         dimensions = len(position_boundary)
@@ -27,7 +30,7 @@ class SOS:
         # random initialization
         for i in range(population):
             position[:,i] = min_position + np.random.rand(dimensions)*(max_position-min_position)
-            fit[i] = objective_function(position[:,i])
+        fit = objective_function(position)
         history = {}
 
         history['iteration'] = []
@@ -36,16 +39,21 @@ class SOS:
         history['best_fit'] = []
         history['cpu_time'] = []
         history['position_boundary'] = position_boundary
-        history['objective_function'] = objective_function
+        history['objective_function'] = objective_function_
         history['population'] = population
         history['itmax'] = itmax
+        history['max_fa'] = max_fa
+        history['directon'] = direction
 
 
         best_fit = np.min(fit)
         imin = np.argmin(fit)
         global_best = position[:,imin]
 
-        for it in range(1,itmax+1):
+        it = 0
+        break_flag = False
+        while it < itmax and break_flag is False:
+            it += 1
 
             best_fit = np.min(fit)
             imin = np.argmin(fit)
@@ -57,12 +65,24 @@ class SOS:
             history['best_fit'].append(float(best_fit))
             
             for i in range(population):
+                if objective_function.calls+1 >= max_fa:
+                    break_flag = True
+                    break
                 # mutualism
                 position, fit = self.mutualism(i, population, position, dimensions, global_best, position_boundary, objective_function, fit)
+                if objective_function.calls >= max_fa:
+                    break_flag = True
+                    break
                 # comensalism
                 position, fit = self.comensalism(i, population, position, dimensions, global_best, position_boundary, objective_function, fit)
+                if objective_function.calls >= max_fa:
+                    break_flag = True
+                    break
                 # parasitism
                 position, fit = self.parasitism( i, population, position, dimensions, max_position, min_position, objective_function, fit)
+                if objective_function.calls >= max_fa:
+                    break_flag = True
+                    break
          
         cpu_time = time.process_time() - ini_time
         history['cpu_time'] = cpu_time

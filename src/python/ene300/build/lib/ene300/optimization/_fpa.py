@@ -22,7 +22,7 @@ class FPA:
     def __init__(self):
         pass
 
-    def __call__(self, objective_function, position_boundary, population, p, itmax):
+    def __call__(self, objective_function, position_boundary, population, p, itmax, max_fa, direction='minimize'):
         """
         p: change probalility to change from global to local pollination
         """
@@ -31,7 +31,10 @@ class FPA:
         objective_function_ = objective_function
         @function_counter
         def objective_function(x):
-            return objective_function_(x)
+            if direction == 'minimize':
+                return objective_function_(x)
+            elif direction == 'maximize':
+                return - objective_function_(x)
 
         position_boundary = np.array(position_boundary)
         dimensions = len(position_boundary)
@@ -44,7 +47,7 @@ class FPA:
 
         for i in range(population):
             position[:,i] = min_position + np.random.rand(dimensions)*(max_position-min_position)
-            fit[i] = objective_function(position[:,i])
+        fit = objective_function(position)
 
         fmin = np.min(fit)
         imin = np.argmin(fit)
@@ -60,12 +63,16 @@ class FPA:
         history['best_fit'] = []
         history['cpu_time'] = []
         history['position_boundary'] = position_boundary
-        history['objective_function'] = objective_function
+        history['objective_function'] = objective_function_
         history['population'] = population
         history['itmax'] = itmax
+        history['max_fa'] = max_fa
+        history['directon'] = direction
 
-
-        for it in range(1,itmax+1):
+        it = 0
+        break_flag = False
+        while it < itmax and break_flag is False:
+            it += 1
             for i in range(population):
                 if np.random.rand() > p:
                     # global pollination
@@ -86,15 +93,20 @@ class FPA:
                         S[j,:] = np.clip(S[j,:], *position_boundary[j])
 
 
-                fit_new = objective_function(S[:,i])
-                if fit_new < fit[i]:
+            fit_new = objective_function(S)
+            for i in range(population):
+                if fit_new[i] < fit[i]:
                     position[:,i] = np.copy(S[:,i])
-                    fit[i] = np.copy(fit_new)
+                    fit[i] = np.copy(fit_new[i])
 
-                if fit_new < fmin:
+                if fit_new[i] < fmin:
                     global_best = np.copy(S[:,i])
-                    fmin = np.copy(fit_new)
+                    fmin = np.copy(fit_new[i])
             
+                if objective_function.calls >= max_fa:
+                    break_flag = True
+                    break
+
             best_fit = fmin
             history['iteration'].append(it)
             history['position'].append(np.copy(position))

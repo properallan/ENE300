@@ -7,13 +7,16 @@ class GWO:
     def __init__(self): 
         pass
 
-    def __call__(self, objective_function, position_boundary, population, itmax, a_function):
+    def __call__(self, objective_function, position_boundary, population, a_function, itmax, max_fa, direction='minimize'):
         ini_time = time.process_time()
 
         objective_function_ = objective_function
         @function_counter
         def objective_function(x):
-            return objective_function_(x)
+            if direction == 'minimize':
+                return objective_function_(x)
+            elif direction == 'maximize':
+                return - objective_function_(x)
 
         position_boundary = np.array(position_boundary)
         dimensions = len(position_boundary)
@@ -27,7 +30,8 @@ class GWO:
         # random initialization
         for i in range(population):
             position[:,i] = min_position + np.random.rand(dimensions)*(max_position-min_position)
-            fit[i] = objective_function(position[:,i])
+            
+        fit = objective_function(position)
         
         history = {}
 
@@ -37,9 +41,11 @@ class GWO:
         history['best_fit'] = []
         history['cpu_time'] = []
         history['position_boundary'] = position_boundary
-        history['objective_function'] = objective_function
+        history['objective_function'] = objective_function_
         history['population'] = population
         history['itmax'] = itmax
+        history['max_fa'] = max_fa
+        history['directon'] = direction
 
         
         sorted_fit = np.sort(fit)
@@ -52,13 +58,15 @@ class GWO:
         delta = np.copy(position[:, sorted_i[2]])
 
         self.itmax = itmax
-        for it in range(1,itmax+1):
+        it = 0
+        break_flag = False
+        while it < itmax and break_flag is False:
+            it += 1
             self.it = it
             a = self._get_function(a_function)
 
             for i in range(population):
                 position[:,i] = self._update_agent(position[:,i], alpha, beta, delta, a)
-
             fit = objective_function(position)
 
             sorted_fit = np.sort(fit)
@@ -76,6 +84,10 @@ class GWO:
             history['position'].append(np.copy(position))
             history['global_best'].append(np.copy(global_best))
             history['best_fit'].append(float(best_fit))
+        
+            if objective_function.calls >= max_fa:
+                break_flag == True
+                break
            
         cpu_time = time.process_time() - ini_time
         history['cpu_time'] = cpu_time
@@ -116,9 +128,9 @@ class GWO:
         C2 = 2*np.random.rand()
         C3 = 2*np.random.rand()
 
-        D_alpha = np.abs(C1*alpha-position)
-        D_beta  = np.abs(C2*beta- position)
-        D_delta = np.abs(C3*delta-position)
+        D_alpha = np.abs(C1*alpha -position)
+        D_beta  = np.abs(C2*beta  -position)
+        D_delta = np.abs(C3*delta -position)
 
         A1 = (2*a*np.random.rand() - a)
         A2 = (2*a*np.random.rand() - a)
