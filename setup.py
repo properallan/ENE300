@@ -1,6 +1,9 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
-setup(name='ene300',
+setup(
+      packages=find_packages(exclude=("resources",)),
+      include_package_data=True, 
+      name='ene300',
       version='0.1',
       description='ENE300 repository',
       url='https://github.com/properallan/ene300',
@@ -14,5 +17,8 @@ setup(name='ene300',
             'numpy==1.24.2',
             'scipy==1.9.3',
             'setuptools==67.6.0',
+            'ipykernel',
+            'seaborn',
+            'pandas'
       ],
       zip_safe=False)
