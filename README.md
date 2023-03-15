@@ -29,3 +29,5 @@ conda env create --file environment.yml
 ```
 conda activate ene300env
 ```
+
+The folder `resources/tarefas/trabalho_2/statistics.ipynb` contains a sample code using this python package for statisical analysis of the bioinspired meta heuristics implemented.
