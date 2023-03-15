@@ -12,7 +12,7 @@ Move to the created repository root folder:
 cd ENE300
 ```
 
-Install the `ene300` package using pip
+Install the `ene300` package using pip:
 
 ```
 pip install ./
@@ -24,7 +24,7 @@ To install a conda environment able to run the `jupyter` notebooks, in the root 
 conda env create --file environment.yml
 ```
 
-, end then activate the environment
+, end then activate the environment:
 
 ```
 conda activate ene300env
