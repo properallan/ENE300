@@ -1,0 +1,6 @@
+autograd==1.5
+ipython==8.11.0
+matplotlib==3.7.1
+numpy==1.24.2
+scipy==1.9.3
+setuptools==67.6.0

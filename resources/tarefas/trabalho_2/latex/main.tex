@@ -1,0 +1,388 @@
+% LaTeX Template for short student reports.
+% Citations should be in bibtex format and go in references.bib
+\documentclass[a4paper, 11pt]{article}
+\usepackage[top=3cm, bottom=3cm, left = 2cm, right = 2cm]{geometry} 
+\geometry{a4paper} 
+\usepackage[utf8]{inputenc}
+\usepackage{pgf}
+\usepackage{textcomp}
+\usepackage{graphicx} 
+\usepackage{amsfonts,amsmath,amssymb,amsthm,mathtools,commath}
+\usepackage{tabularx}
+\usepackage{booktabs}
+\usepackage{makecell}
+\usepackage{verbatim}
+\usepackage{cprotect}
+\usepackage{bm}  
+%\hypersetup{linkcolor=black,citecolor=black,filecolor=black,urlcolor=black} % black links, for printed output
+\usepackage{memhfixc} 
+\usepackage{pdfsync}  
+\usepackage{fancyhdr}
+\usepackage[portuguese]{babel}
+\usepackage{indentfirst}
+\usepackage{vcell}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage[pdftex,bookmarks,breaklinks, hidelinks]{hyperref}  
+\usepackage{natbib}
+\setcitestyle{authoryear,open={(},close={)}}
+\pagestyle{fancy}
+\usepackage{multirow}
+\usepackage{xcolor,colortbl}
+\newcommand{\done}{\cellcolor{teal}done}  %{0.9}
+\newcommand{\hcyan}[1]{{\color{teal} #1}}
+
+\title{Algoritmos de Otimização Bioinspirados}
+\author{Allan Moreira de Carvalho \\
+Centro de Engenharia e Ciências Sociais Aplicadas, Universidade Federal do ABC}
+\date{Santo André, \today}
+
+\begin{document}
+
+\maketitle
+
+
+\begin{abstract}
+\end{abstract}
+
+\tableofcontents
+
+
+
+\section{Introdução}
+
+A \textit{Inteligência Computacional (IC)} é um ramo da \textit{Inteligência Artificial (IA)} 
+que propõe \textit{metaheurísticas} inspiradas na natureza na resolução de problemas dificilmente 
+tratáveis pelos métodos tradicionais baseados em soluções analíticas ou ainda, métodos numéricos, 
+baseadas em gradiente. Nesse trabalho, será feita uma análise de convergência dos seguintes algoritmos 
+biospirados:
+
+\begin{itemize}
+    \item \textit{Particle Swarm Optimization (PSO)}
+    \item \textit{Flower Pollination Algorithm (FPA)}
+    \item \textit{Symbiotic Organisms Search (SOS)}
+    \item \textit{Grey Wolf Optimizer (GWO)}
+\end{itemize}
+
+A performance dos algoritmos foi avaliada quanto sua capacidade de minimizar um conjunto de seis funções
+ objetivo, cujos domínios computacionais e equacionamento são apresentados na Tabela \ref{tab:funcoes_objetivo}.
+ A função objetivo \path{regularized_ts} representa um problema de otimização onde deseja-se minimizar os custos
+ de operação de um sistema termoelétrico. 
+
+\begin{table}
+    \caption{Conjunto de Funções Objetivo. \(^*\) O valor de mínimo da função \path{regularized_ts} foi aquele encontrado pelo processo de otimização, as demais função são tipicamente utilizadas para avaliar algoritmos de otimização \cite{simulationlib,yang2010}.}
+    \label{tab:funcoes_objetivo}
+    \begin{tabularx}{\textwidth}{rllr}
+        \toprule
+        \textbf{Nome} & \textbf{Função Objetivo} & \textbf{Domínio} & \textbf{Mínimo} \\
+        \midrule
+        \scriptsize \path{easom}     & \scriptsize \( f(\mathbf{x}) = -\cos{x_1} \cos{x_2} e^{\left( -(x_1-\pi)^2-(x_2-\pi)^2 \right)}\)                                                                                                             & \scriptsize \( x_i \in [-100, 100] \) & \scriptsize \( -1.0000\) \\
+        \scriptsize \path{eggholder} & \scriptsize \( f(\mathbf{x}) = - \left( x_2 + 47 \right) \sin{\left( \sqrt{\left| x_2 + \frac{x_1}{2} + 47\right|} \right)} - x_1 \sin{\left( \sqrt{\left| x_1 - \left( x_2 + 47 \right) \right|} \right) }\) & \scriptsize \( x_i \in [-512, 512] \) & \scriptsize \( -959.6400 \) \\
+        \scriptsize \path{griewank} & \scriptsize \( f(\mathbf{x}) =  \sum_{i=1}^{2} \frac{x_i^2}{4000} - \sum_{i=1}^{2} \cos{\left( \frac{x_i}{\sqrt{i}} \right)} + 1 \)                                                                           & \scriptsize \( x_i \in [-600, 600] \) & \scriptsize \( 0.0000 \) \\
+        \scriptsize \path{shubert}   & \scriptsize \( f(\mathbf{x}) = \left( \sum_{i=1}^{5} i \cos{ \left( ( i +1) x_1 + i \right)} \right) \left( \sum_{i=1}^{5} \hat{\imath} \cos{ \left( ( i +1) x_2 + i \right)} \right) \)                      & \scriptsize \( x_i \in [-10,10] \)    & \scriptsize \( -186.7309 \) \\
+        \scriptsize \path{sixhump}   & \scriptsize \( f(\mathbf{x}) = \left( 4 - 2.1 x_1^2 + \frac{x_1^4}{3} \right) x_1^2 + x_1 x_2 + \left( -4 + 4 x_2^2 \right) x_2  \)                                                                           & \scriptsize \makecell[l]{ \(  x_1 \in [-3,3] \)  \\ \(  x_2 \in [-2,2]\) }      & \scriptsize \( -1.0316 \) \\
+        \scriptsize \makecell[r]{\path{regularized_ts}} & \scriptsize \( f(\mathbf{x}) = \sum_{i=1}^{3}{( a_i + b_i x_i + c_i x_i^2 )} + \alpha (\sum_{i=1}{3}{x_i} - 550)^2  \)                                                                     & \scriptsize \makecell[l]{ \(  x_1\in [100,196] \)  \\ \(  x_2 \in [50,114]\) \\ \(  x_3 \in [200,332]\)} & \scriptsize \( 93.6891^* \)  \\
+        \bottomrule
+    \end{tabularx}
+\end{table}
+
+\begin{figure}[!ht]
+    \centering
+    \caption{Conjunto de Funções Objetivo utilizadas.}
+    \subfloat[\path{easom}]{%
+        \scalebox{.5}{\includegraphics[0.5\textwidth]{easom_optimum.pdf}}
+    }
+    \subfloat[\path{eggholder}]{%
+        \scalebox{.5}{\includegraphics[0.5\textwidth]{eggholder_optimum.pdf}}
+    }
+
+    \subfloat[\path{griewank}]{%
+        \scalebox{.5}{\includegraphics[0.5\textwidth]{griewank_optimum.pdf}}
+    }
+    \subfloat[\path{shubert}]{%
+        \scalebox{.5}{\includegraphics[0.5\textwidth]{shubert_optimum.pdf}}
+    }
+
+    \subfloat[\path{sixhump}]{%
+        \scalebox{.5}{\includegraphics[0.5\textwidth]{sixhump_optimum.pdf}}
+    }
+    \subfloat[\path{regularized_ts}]{%
+        \scalebox{.5}{\includegraphics[0.5\textwidth]{regularized_ts_optimum.pdf}}
+    }
+\end{figure}
+
+\label{sec:analise_estatistica}
+\section{Análise Estatística (PSO, FPA, SOS)}
+
+Para manter a isonomia do resultados, todos os algoritmos foram testados 20 vezes para
+cada uma das funções objetivo, utilizando sempre uma população com o mesmo número de 
+80 indivíduos e uma quantidade máximo de 200 avaliações da função objetivo como critério 
+de parada. Os resultados de convergência são apresentados em função do número de iterações. 
+No caso da meta heurística \texit{SOS}, cada iteração executa 4 avaliações da função objetivo
+e por esse motivo as curvas de convergência possuem um número total de iterações menor que os
+demais.
+
+O algoritmo \texit{PSO} requer outros hiper parâmetros além do critério de parada e tamanho da população.
+São eles, uma limitação para os vetores de velocidade, escolhido entre \( [-1, 1] \), uma função para
+os pesos de inércia, nesse caso foi utilizada uma distribuição randômica, e também coeficientes de aceleração
+individuais, fixados em \( c_1=1 \) e \(c_2=1.5 \).
+
+O algoritmo \texit{FPA} requer um parâmetro de peso que controla a permuta entre um processo de
+polinização local e um processo global, foi escolhido o valor \( p=0.75 \). O algoritmo \texit{SOS} não requer
+outros hiper parâmetros.
+
+As Figura de \ref{fig:statistic_easom} à \ref{fig:statistic_regularized_ts} apresentam na coluna da esquerda
+um gráfico de dispersão dos valores mínimos obtividos nas 20 rodadas para cada uma das funções objetivo testadas, e 
+na colunda da direita, gráficos de convergência ao longo das iterações mostrando o intervalo de confiância 
+de \( 95 \% \) em torno da tendência central.
+
+\begin{figure}[!ht]
+    \centering
+    \caption{Função objetivo \path{easom}.}
+    \label{fig:statistic_easom}
+    \subfloat[Dispersão.]{%
+        \scalebox{.8}{\input{easom_boxplot.pgf}}
+    }
+    \subfloat[Convergência.]{%
+        \scalebox{.8}{\input{easom_convergence.pgf}}
+    }
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \caption{Função objetivo \path{eggholder}.}
+    \label{fig:statistic_eggholder}
+    \subfloat[Dispersão.]{%
+        \scalebox{.8}{\input{eggholder_boxplot.pgf}}
+    }
+    \subfloat[Convergência.]{%
+        \scalebox{.8}{\input{eggholder_convergence.pgf}}
+    }
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \caption{Função objetivo \path{griewank}.}
+    \label{fig:statistic_griewank}
+    \subfloat[Dispersão.]{%
+        \scalebox{.8}{\input{griewank_boxplot.pgf}}
+    }
+    \subfloat[Convergência.]{%
+        \scalebox{.8}{\input{griewank_convergence.pgf}}
+    }
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \caption{Função objetivo \path{shubert}.}
+    \label{fig:statistic_shubert}
+    \subfloat[Dispersão.]{%
+        \scalebox{.8}{\input{shubert_boxplot.pgf}}
+    }
+    \subfloat[Convergência.]{%
+        \scalebox{.8}{\input{shubert_convergence.pgf}}
+    }
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \caption{Função objetivo \path{sixhump}.}
+    \label{fig:statistic_sixhump}
+    \subfloat[Dispersão.]{%
+        \scalebox{.8}{\input{sixhump_boxplot.pgf}}
+    }
+    \subfloat[Convergência.]{%
+        \scalebox{.8}{\input{sixhump_convergence.pgf}}
+    }
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \caption{Função objetivo \path{regularized_ts}.}
+    \label{fig:statistic_regularized_ts}
+    \subfloat[Dispersão]{%
+        \scalebox{.8}{\input{regularized_ts_boxplot.pgf}}
+    }
+    \subfloat[Convergência]{%
+        \scalebox{.8}{\input{regularized_ts_convergence.pgf}}
+    }
+\end{figure}
+
+\section{Grey Wolf Optimizer (GWO)}
+
+O algoritmo \textit{GWO} \cite{Mirjalili2014} é inspirado na organização social hierárquica e estratégia predatória dos lobos cinzentos (\textit{Canis lupus}). A organização social obedece uma hierarquia rígida de dominação social, no topo estão os líderes, denominados \( \alpha \). Logo abaixo, estão os indivíduos \( \beta \), ainda que subordinados aos \( \alpha \), possuem dominância sobre os indivíduos situados logo abaixo na cadeia, dessa forma os \( \beta \) podem auxiliar os \( \alpha \) nas tomadas de decisões e gerenciamento do grupo. Logo abaixo estão os indivíduos \( \delta \) e por último, o bode expiatório do grupo, está a casta dos \( \omega \). 
+
+O algoritmo também baseia-se na estratégia de caça dos lobos, que consiste em quatro etapas: \textit{cercar a presa}; \textit{caçar} ; \textit{atacar}; \textit{procurar}. O \textit{cercamento} da presa é modelado pelas equações \ref{eq:cercar_1,eq:cercar_2}
+
+\begin{align}
+\label{eq:cercar_1}
+\mathbf{D} &=\left|\mathbf{C} \cdot \mathbf{x}_p(t)-\mathbf{x}(t)\right| \\
+\label{eq:cercar_2}
+\mathbf{x}(t+1) &=\mathbf{x}_p(t)-\mathbf{A} \cdot \mathbf{D} 
+\end{align}
+
+, a cada nova iteração \( t+1\), o vetor de posição \( \mathbf{x} \) é atualizado, levando em consideração o candidato à ótimo (posição da presa, \( \mathbf{x}_p\)) e a distância euclidiana \( \mathbf{D}\). Os vectores \( \mathbf{C}\) e \( A\), são atualizados conforme
+
+\begin{align}
+\mathbf{A}&=2 \mathbf{a} \cdot \mathbf{r}_1-\mathbf{a} \\
+\mathbf{C}&=2 \cdot \mathbf{r}_2
+\end{align}
+
+, onde \( \mathbf{r} \) é um vetor com componentes randômicas entre 0 e 1 e o vetor \( \mathbf{a} \) tem valores decrescentes de 2 até 0. Desse modo, cada lobo pode atualizar sua posição randomicamente ao redor de uma presa, porém essa nova posição o leva cada vez mais próximo da presa a cada iteração. 
+
+Na etapa de \textit{caça}, fica evidente a organização hierárquica da matilha, os lobos dominantes têm papel de guiar o grupo. Para mimetizar esse comportamento, o vetor posição dos melhores candidatos à ótimo, ou seja, com melhor \textit{fitness}, são ranqueados como \(\alpha \), \( \beta\) e \( \delta \), esses vetores são salvos, enquanto que os outros membros da matilha são forçados à atualizar suas posições, conforme as equações \ref{eq:update_agent} levando em consideração a posição dos membros dominantes.
+
+\begin{align}
+\label{eq:update_agent}
+&\mathbf{D}_\alpha=\left|\mathbf{C}_1 \cdot \mathbf{x}_\alpha-\mathbf{x}\right|,& \qquad & \mathbf{D}_\beta=\left|\mathbf{C}_2 \cdot \mathbf{x}_\beta-\mathbf{x}\right|,& \qquad &\mathbf{D}_\delta=\left|\mathbf{C}_3 \cdot \mathbf{x}_\delta-\mathbf{x}\right| \\
+&\mathbf{x}_1=\mathbf{x}_\alpha-\mathbf{A}_1 \cdot\left(\mathbf{D}_\alpha\right),& \qquad & \mathbf{x}_2=\mathbf{x}_\beta-\mathbf{A}_2 \cdot\left(\mathbf{D}_\beta\right),& \qquad & \mathbf{x}_3=\mathbf{x}_\delta-\mathbf{A}_3 \cdot\left(\mathbf{D}_\delta\right) \\
+&\mathbf{x}(t+1)=\frac{\mathbf{x}_1+\mathbf{x}_2+\mathbf{x}_3}{3} & \qquad & \qquad &
+\end{align}
+
+A estratégia de \textit{atacar} é emulada pelo valor decrescente de \( \mathbf{a} \), o que leva os lobos para posições cada vez mais próximas da presa \( \mathbf{x}_p \). A estratégia de \texit{busca} pela presa, é representada pelos valores randômicos contidos nos vetores \( \mathbf{A}\) e \(\mathbf{C}\), o que leva os lobos à procurarem por novas posições, evitando que o algoritmo fique preso em mínimos locais e aumentando a capacidade de exploração do espaço amostral.
+
+\subsection{Análise Estatística (GWO)}
+
+A análise estatística do algoritmo \textit{GWO} utilizou uma população com o mesmo número de indivíduos (80) e o mesmo critério de parada (200 avaliações) descritos na seção \ref{sec:analise_estatistica}. O algoritmo em questão não possuiu outros hiper parâmetros, os valores de \( \mathbf{a} \) e \( \mathbf{r}\) seguiram a referência \cite{Mirjalili2014}. 
+
+Os resultados em termos de dispersão e convergência são apresentados nas Figuras \ref{fig:statistic_easom_gwo} à \ref{fig:statistic_regularized_ts_gwo}, os resultados para as demais meta heurísticas foram repetidos para melhor comparação. 
+
+A Tabela \ref{tab:results} apresenta os valores médios e os desvios obtidos por cada uma das meta heurísticas no conjunto de funções objetivo proposto, com destaque em verde para os melhores resultados e em vermelho os piores para cada uma das funções.
+
+\subsection{Função \path{eason}}
+
+Os algoritmos \texit{PSO} e \textit{SOS} apresentaram os melhores resultados em termos de acurácia e dispersão, conforme visto no gráfico \ref{fig:statistic_easom} (a). Todos os algoritmos aproximaram bem o valor ótimo, sendo que \texit{FPA} apresentou a convergência mais lenta, Figura \ref{fig:statistic_easom_gwo} (b).
+
+\subsection{Função \path{eggholder}}
+
+Os algoritmos \textit{PSO} e \textit{GWO} não foram capazes de obter uma boa aproximação para o ótimo global, mostrando uma tendência à convergirem para um ótimo local, apresentando também uma maior dispersão, como pode ser visto na Figura \ref{fig:statistic_eggholder_gwo} (a). A Figura \ref{fig:statistic_eggholder_gwo} (b), mostra a convergência dos algoritmos, o algoritmo \texit{SOS} apresentou a melhor velocidade de convergência, porém o \texit{FPA} foi capaz de obter um valor ótimo mais próximo do ótimo global de referência.
+
+\subsubsection{Função \path{griewank}}
+
+Nesse problema, os algoritmos \textit{PSO}, \textit{SOS} e \textit{GWO} obtiveram baixa dispersão, como visto na Figura \ref{fig:statistic_griewank_gwo} (a) e rápida taxa de convergência, \ref{fig:statistic_griewank_gwo} (b). Apenas o algortimo \textit{FPA} aparenta convergir para um valor de ótimo local, e também uma maior dispersão nos resultados obtidos nas 20 rodadas.
+
+\subsection{Funções \path{shubert} e \textit{sixhump}}
+
+De maneira análoga ao caso anterior os algoritmos \textit{PSO}, \textit{SOS} e \textit{GWO} foram superiores, tanto em termos de uma menor dispersão, Figuras \ref{fig:statistic_shubert_gwo, fig:statistic_sixhump_gwo} (a), quanto em termos da rápida taxa de convergência \ref{fig:statistic_shubert_gwo, fig:statistic_sixhump_gwo} (b). Diferente da função anterior o algoritmo \textit{FPA} também apresentou bom desempenho, convergindo para o valor de ótimo glocal de referência.
+
+\subsection{Função \path{regularized_ts}}
+
+Os algoritmos \textit{PSO}, \textit{SOS} e \textit{GWO} convergiram para valores ótimos muito próximos, com pouca dispersão, como visto na figura \ref{fig:statistic_regularized_ts_gwo} (a). A taxa de convergência, apresentada na Figura \ref{fig:statistic_regularized_ts_gwo} (b), para os algoritmos mencionados, também foi bastante semelhante. O desempenho do algoritmo \textit{GWO} foi inferior aos temais, tanto em dispersão, quanto na taxa de convergência. Além disso o algoritmo \textit{GWO} convergiu para um valor ótimo diferente dos demais, indicando que ele não foi capaz de encontrar corretamente o ótimo global, pelo menos dentro do limite de 200 avaliações da função objetivo. 
+
+\begin{figure}[!ht]
+    \centering
+    \caption{Função objetivo \path{easom}.}
+    \label{fig:statistic_easom_gwo}
+    \subfloat[Dispersão.]{%
+        \scalebox{.8}{\input{easom_boxplot_gwo.pgf}}
+    }
+    \subfloat[Convergência.]{%
+        \scalebox{.8}{\input{easom_convergence_gwo.pgf}}
+    }
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \caption{Função objetivo \path{eggholder}.}
+    \label{fig:statistic_eggholder_gwo}
+    \subfloat[Dispersão.]{%
+        \scalebox{.8}{\input{eggholder_boxplot_gwo.pgf}}
+    }
+    \subfloat[Convergência.]{%
+        \scalebox{.8}{\input{eggholder_convergence_gwo.pgf}}
+    }
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \caption{Função objetivo \path{griewank}.}
+    \label{fig:statistic_griewank_gwo}
+    \subfloat[Dispersão.]{%
+        \scalebox{.8}{\input{griewank_boxplot_gwo.pgf}}
+    }
+    \subfloat[Convergência.]{%
+        \scalebox{.8}{\input{griewank_convergence_gwo.pgf}}
+    }
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \caption{Função objetivo \path{shubert}.}
+    \label{fig:statistic_shubert_gwo}
+    \subfloat[Dispersão.]{%
+        \scalebox{.8}{\input{shubert_boxplot_gwo.pgf}}
+    }
+    \subfloat[Convergência.]{%
+        \scalebox{.8}{\input{shubert_convergence_gwo.pgf}}
+    }
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \caption{Função objetivo \path{sixhump}.}
+    \label{fig:statistic_sixhump_gwo}
+    \subfloat[Dispersão.]{%
+        \scalebox{.8}{\input{sixhump_boxplot_gwo.pgf}}
+    }
+    \subfloat[Convergência.]{%
+        \scalebox{.8}{\input{sixhump_convergence_gwo.pgf}}
+    }
+\end{figure}
+
+\begin{figure}[!ht]
+    \centering
+    \caption{Função objetivo \path{regularized_ts}.}
+    \label{fig:statistic_regularized_ts_gwo}
+    \subfloat[Dispersão]{%
+        \scalebox{.8}{\input{regularized_ts_boxplot_gwo.pgf}}
+    }
+    \subfloat[Convergência]{%
+        \scalebox{.8}{\input{regularized_ts_convergence_gwo.pgf}}
+    }
+\end{figure}
+
+\begin{table}
+\label{tab:results}
+\caption{Resultado em termos de média e desvio padrão.}
+\begin{tabular}{clrrrrrr}
+\toprule
+{} & {} &  \textbf{\path{shubert}} &  \textbf{\path{griewank}} &  \textbf{\path{sixhump}} &   \textbf{\path{easom}} &  \textbf{\path{eggholder}} &  \textbf{\path{regularized_ts}} \\
+\midrule
+\multirow{2}{*}{\textit{PSO}} & ave& \cellcolor{red!25}-184.6530 &    0.0041 &  -1.0305 & -1.0000 &  -870.6296 &         \cellcolor{green!25}93.3705 \\
+& std &    \cellcolor{red!25}9.0423 &    0.0037 &   0.0048 &  0.0000 &    88.9875 &         \cellcolor{green!25}0.0000 \\
+\hline
+\multirow{2}{*}{\textit{FPA}} & ave & -184.7586 &    \cellcolor{red!25}0.0364 &  \cellcolor{red!25}-1.0302 & \cellcolor{red!25}-0.9979 &  \cellcolor{green!25}-959.6081 &         93.5028 \\
+& std &    2.4345 &    \cellcolor{red!25}0.0174 &   \cellcolor{red!25}0.0015 &  \cellcolor{red!25}0.0019 &     \cellcolor{green!25}0.0673 &          0.1169 \\
+\hline
+\multirow{2}{*}{\textit{SOS}} & ave & \cellcolor{green!25} -186.7309 &    \cellcolor{green!25}0.0000 &  \cellcolor{green!25}-1.0316 & \cellcolor{green!25}-1.0000 &  -949.5999 &         93.3716 \\
+& std &    \cellcolor{green!25}0.0000 &   \cellcolor{green!25} 0.0000 &   \cellcolor{green!25}0.0000 &  \cellcolor{green!25}0.0000 &    23.9239 &          0.0039 \\
+\hline
+\multirow{2}{*}{\textit{GWO}} & ave & -186.6014 &    0.0004 &  -1.0316 & -0.9990 &  -887.0351 &        \cellcolor{red!25}108.4933 \\
+& std &    0.2039 &    0.0016 &   0.0000 &  0.0014 &    69.1138 &          \cellcolor{red!25}7.4198 \\
+\hline
+& ref     & -186.7309 &    0.0000 &  -1.0316 & -1.0000 &  -959.6400 &         93.3705 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\pagebreak
+
+\section{Considerações}
+
+As meta heurísticas bioinspiradas apresentaram soluções efetivas para o problema de otimização, representado aqui por um conjunto de seis funções objetivo. Todos os métodos foram capazes de minimizar as funções objetivo propostas, ainda que para alguns casos, o valor ótimo encontrado não corresponda ao ótimo global. 
+
+O algoritmo  \textit{SOS} teve desempenho superior aos demais, obtendo os menores valores médios para quatro dos seis problemas de minimização propostos. Sua taxa de convergência também foi superior, nesse ponto, vale ressaltar que o custo de cada iteração desse método requer quatro vezes mais avaliações da função objetivo. 
+
+Quanto ao valor ótimo obtido, o algoritmo \textit{PSO} foi superior aos demais para apens um entre os seis problemas propostos, e foi o pior também para apenas um desses problemas. O algoritmo \textit{FPA} obteve os piores resultados para três dos problemas propostos, e o melhor resultado para apenas um dos problemas. E por fim, o algoritmo \textit{GWO} foi inferior à todos os demais para um dos problemas propostos e não foi melhor que nenhum deles nos outros testes. Nota-se que a performance de cada meta heurística depende fortemente da função objetivo a ser otimizada, sendo portanto improvável obter uma meta heurística superior em todos os cenários.
+
+Conclui-se que dentre os algoritmos testados o \textit{GWO} obteve os resultados mais robustos, além disso essa meta heurística não possui hiper parâmetros para serem ajustado, e que poderiam eventualmente afetar a sua performance. Por esse mesmo motivo, ressalta-se que essa conclusão não garante a superioridade desse algoritmo em quaisquer outros cenários, uma vez que os demais algoritmos \textit{PSO} e \textit{FPA} podem ter sua performance alterada por meio de otimização dos seus hiper parâmetros. 
+ 
+ \appendix
+
+\section{Implementação}
+
+Os algoritmos foram implementados em \path{python} 
+\bibliographystyle{abbrvnat}
+\bibliography{references}  % need to put bibtex references in references.bib 
+
+\end{document}
