@@ -106,8 +106,13 @@ class FPA:
                 if objective_function.calls >= max_fa:
                     break_flag = True
                     break
+            
 
             best_fit = fmin
+
+            if direction == 'maximize':
+                best_fit = -best_fit
+                
             history['iteration'].append(it)
             history['position'].append(np.copy(position))
             history['global_best'].append(np.copy(global_best))

@@ -59,6 +59,9 @@ class SOS:
             best_fit = np.min(fit)
             imin = np.argmin(fit)
             global_best = np.copy(position[:,imin])
+
+            if direction == 'maximize':
+                best_fit = -best_fit
          
             history['iteration'].append(it)
             history['position'].append(np.copy(position))

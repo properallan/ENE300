@@ -91,6 +91,10 @@ class GWO:
             # store best and iterate
             global_best = np.copy(alpha)
 
+
+            if direction == 'maximize':
+                best_fit = -best_fit
+
             history['iteration'].append(it)
             history['position'].append(np.copy(position))
             history['global_best'].append(np.copy(global_best))

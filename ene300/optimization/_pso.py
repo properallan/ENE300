@@ -123,6 +123,9 @@ class PSO:
             self.C1s.append(C1)
             self.C2s.append(C2)
 
+            if direction == 'maximize':
+                best_fit = -best_fit
+                
             history['iteration'].append(it)
             history['position'].append(np.copy(position))
             history['velocity'].append(np.copy(velocity))
