@@ -118,11 +118,11 @@ class GA:
 
             # The random value to be added to the gene.
 
-            random_value = np.random.uniform(-1.0, 1.0, 1)
+            random_value = np.random.uniform(-2.0, 2.0, 1)
 
             random_idx = np.random.randint(0, offspring_crossover.shape[0])
 
-            offspring_crossover[random_idx, idx] = offspring_crossover[random_idx, idx]*(1+random_value)
+            offspring_crossover[random_idx, idx] = offspring_crossover[random_idx, idx]*(random_value)
 
         return offspring_crossover
 
